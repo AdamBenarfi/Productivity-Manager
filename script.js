@@ -1,8 +1,8 @@
 const STORAGE_KEY = "pm_neon_v1";
 let state = {
   tasks:
-    [] /* each: {id,title,category,priority,subtasks:[{id,text,done}],done,created,dueDate,calendarDate} */,
-  goals: [] /* {id,text,target,current} */,
+    [] , 
+  goals: [] ,
   notes: "",
   pomodoro: {
     mode: "work",
@@ -34,7 +34,7 @@ function loadState() {
 }
 loadState();
 
-/* ===================== Utilities ===================== */
+
 function uid(prefix = "id") {
   return prefix + "_" + Math.random().toString(36).slice(2, 9);
 }
@@ -49,7 +49,7 @@ function fmtTime(sec) {
   return `${m}:${String(s).padStart(2, "0")}`;
 }
 
-/* ===================== Calendar ===================== */
+
 const calendarGrid = document.getElementById("calendarGrid");
 const monthLabel = document.getElementById("monthLabel");
 const todayLabel = document.getElementById("todayLabel");
@@ -105,7 +105,7 @@ document.getElementById("nextMonth").addEventListener("click", () => {
   renderCalendar(calDate);
 });
 
-/* ===================== TASKS UI ===================== */
+
 const tasksList = document.getElementById("tasksList");
 const searchInput = document.getElementById("search");
 const filterCategory = document.getElementById("filterCategory");
@@ -234,8 +234,7 @@ function renderTasks() {
     });
   });
 
-  // allow dropping to set calendar date - drop zone is calendar selected date in sidebar (already selected)
-  // allow reordering - simple: when dropped on another task, swap created timestamps
+  
   tasksList.addEventListener("dragover", (e) => e.preventDefault());
   tasksList.addEventListener("drop", (e) => {
     e.preventDefault();
@@ -254,14 +253,13 @@ function renderTasks() {
   });
 }
 
-/* quick edit modal (simple prompt-based to keep single file) */
+
 function openEdit(id) {
   const t = state.tasks.find((x) => x.id === id);
   if (!t) return;
   const newTitle = prompt("Edit title", t.title);
   if (newTitle === null) return;
   t.title = newTitle;
-  // edit subtasks: quick comma-separated
   const subs = prompt(
     "Subtasks (comma separated)",
     (t.subtasks || []).map((s) => s.text).join(", ")
@@ -274,7 +272,7 @@ function openEdit(id) {
   saveAndRender();
 }
 
-/* ===================== Add Task ===================== */
+
 document.getElementById("addBtn").addEventListener("click", () => {
   const title = document.getElementById("newTitle").value.trim();
   if (!title) return alert("Enter a task title");
@@ -295,12 +293,12 @@ document.getElementById("addBtn").addEventListener("click", () => {
   saveAndRender();
 });
 
-/* ===================== Filters/Search events ===================== */
+
 searchInput.addEventListener("input", renderTasks);
 filterCategory.addEventListener("change", renderTasks);
 filterPriority.addEventListener("change", renderTasks);
 
-/* ===================== Goals ===================== */
+
 function renderGoals() {
   const gList = document.getElementById("goalsList");
   gList.innerHTML = "";
@@ -352,7 +350,7 @@ document.getElementById("addGoalBtn").addEventListener("click", () => {
   saveAndRender();
 });
 
-/* ===================== Pomodoro ===================== */
+
 const pomTimeEl = document.getElementById("pomTime");
 const progressCircle = document.getElementById("progressCircle");
 const pomCycleEl = document.getElementById("pomCycle");
@@ -445,7 +443,7 @@ function flashMode() {
   });
 }
 
-/* ===================== Notes with Markdown preview ===================== */
+
 const notesText = document.getElementById("notesText");
 const notesPreview = document.getElementById("notesPreview");
 const mdToggle = document.getElementById("mdToggle");
@@ -453,7 +451,6 @@ const mdToggle = document.getElementById("mdToggle");
 notesText.value = state.notes || "";
 
 function simpleMarkdownToHTML(md) {
-  // very basic: escapes then convert headings, bold, italic, links, lists
   if (!md) return "";
   let html = md
     .replace(/&/g, "&amp;")
@@ -499,7 +496,7 @@ notesText.addEventListener("input", () => {
   saveState();
 });
 
-/* ===================== Quick actions ===================== */
+
 document.getElementById("clearCompleted").addEventListener("click", () => {
   if (confirm("Clear all completed tasks?")) {
     state.tasks = state.tasks.filter((t) => !t.done);
@@ -543,7 +540,7 @@ document.getElementById("importFile").addEventListener("change", (ev) => {
   reader.readAsText(f);
 });
 
-/* ===================== Theme Toggle (light mode minimal) ===================== */
+
 document.getElementById("toggleTheme").addEventListener("click", () => {
   if (state.ui.theme === "dark") {
     state.ui.theme = "light";
@@ -573,7 +570,7 @@ function applyTheme() {
 }
 applyTheme();
 
-/* ===================== Stats: daily completed and streak ===================== */
+
 function updateStats() {
   const today = new Date().toISOString().slice(0, 10);
   document.getElementById("dailyCompleted").textContent =
@@ -618,33 +615,32 @@ function markComplete() {
   }
 }
 
-/* ===================== Save & Render helper ===================== */
+
 function saveAndRender() {
   saveState();
   renderAll();
 }
 
-/* ===================== Initial renderAll ===================== */
+
 function renderAll() {
   renderCalendar(calDate);
   renderTasks();
   renderGoals();
   renderPom();
   updateStats();
-  // notes
   notesText.value = state.notes || "";
   document.getElementById("dateNow").textContent =
     new Date().toLocaleDateString();
 }
 renderAll();
 
-/* initial event: markComplete used elsewhere via toggles */
+
 function saveAndRender() {
   saveState();
   renderAll();
 }
 
-/* ===================== Initialize sample content if empty ===================== */
+
 if (state.tasks.length === 0 && state.goals.length === 0 && !state.notes) {
   state.tasks.push({
     id: uid("t"),
@@ -680,7 +676,7 @@ if (state.tasks.length === 0 && state.goals.length === 0 && !state.notes) {
   renderAll();
 }
 
-/* Accessibility: keyboard shortcuts */
+
 document.addEventListener("keydown", (e) => {
   if (e.key === "p" && (e.ctrlKey || e.metaKey)) {
     e.preventDefault();
