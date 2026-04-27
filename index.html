@@ -1,28 +1,277 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Weather App</title>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Productivity Manager</title>
 
- 
-  <link rel="stylesheet" href="style.css">
-</head>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="app">
+      <!-- LEFT: calendar/sidebar -->
+      <div class="card sidebar-calendar">
+        <div class="month">
+          <div>
+            <h3 id="monthLabel">Month</h3>
+            <div class="small" id="todayLabel">Today</div>
+          </div>
+          <div class="nav">
+            <button class="icon-btn" id="prevMonth">&lt;</button>
+            <button class="icon-btn" id="nextMonth">&gt;</button>
+          </div>
+        </div>
+        <div class="calendar-grid" id="calendarGrid" aria-hidden="false"></div>
+        <hr
+          style="
+            border: none;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.03);
+            margin: 12px 0;
+          "
+        />
+        <div>
+          <div class="small">Selected date</div>
+          <div
+            id="selectedDate"
+            class="small"
+            style="font-weight: 700; color: var(--neon2)"
+          ></div>
+        </div>
+      </div>
 
-<body>
+      <!-- MAIN -->
+      <main class="main">
+        <div class="top-row card">
+          <div class="brand">
+            <div class="logo">PM</div>
+            <div>
+              <div class="title">Productivity Manager</div>
+              <div class="subtitle">Get busy</div>
+            </div>
+          </div>
 
-  <div class="container">
-    <h1>🌦️ Weather App</h1>
+          <div class="create" aria-label="Create task area">
+            <input
+              id="newTitle"
+              class="input"
+              placeholder="Task title (e.g. Finish report)"
+              style="width: 360px"
+            />
+            <select id="newCategory" class="select" style="width: 140px">
+              <option value="General">General</option>
+              <option value="Study">Study</option>
+              <option value="Work">Work</option>
+              <option value="Personal">Personal</option>
+            </select>
+            <select id="newPriority" class="select" style="width: 120px">
+              <option value="high">High</option>
+              <option value="medium" selected>Medium</option>
+              <option value="low">Low</option>
+            </select>
+            <button class="small-btn" id="addBtn">Add</button>
+          </div>
+        </div>
 
-    <div class="search-box">
-      <input type="text" id="city" placeholder="Enter city">
-      <button onclick="getWeather()">Search</button>
+        <div class="card columns">
+          <section>
+            <div class="task-controls">
+              <input
+                id="search"
+                class="input"
+                placeholder="Search tasks..."
+                style="width: 40%"
+              />
+              <select id="filterCategory" class="select" style="width: 140px">
+                <option value="all">All categories</option>
+                <option value="General">General</option>
+                <option value="Study">Study</option>
+                <option value="Work">Work</option>
+                <option value="Personal">Personal</option>
+              </select>
+              <select id="filterPriority" class="select" style="width: 140px">
+                <option value="all">All priorities</option>
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
+              </select>
+              <div style="flex: 1"></div>
+              <button class="icon-btn" id="toggleTheme">Theme</button>
+            </div>
+
+            <div class="tasks" id="tasksList" aria-live="polite"></div>
+          </section>
+
+          <aside>
+            <!-- Pomodoro -->
+            <div class="card pomodoro">
+              <div style="text-align: center">
+                <div style="font-weight: 800; color: var(--neon2)">
+                  Pomodoro
+                </div>
+                <div class="small">Smart cycles: 25/5 ×4 → long break</div>
+              </div>
+
+              <div class="ring">
+                <svg width="150" height="150" viewBox="0 0 100 100">
+                  <circle
+                    cx="50"
+                    cy="50"
+                    r="44"
+                    stroke="rgba(255,255,255,0.06)"
+                    stroke-width="10"
+                    fill="none"
+                  ></circle>
+                  <circle
+                    id="progressCircle"
+                    cx="50"
+                    cy="50"
+                    r="44"
+                    stroke="url(#g1)"
+                    stroke-width="10"
+                    stroke-linecap="round"
+                    fill="none"
+                    stroke-dasharray="276.5"
+                    stroke-dashoffset="276.5"
+                  ></circle>
+                  <defs>
+                    <linearGradient id="g1" x1="0" x2="1">
+                      <stop offset="0" stop-color="#8a3cff" />
+                      <stop offset="1" stop-color="#3ce0ff" />
+                    </linearGradient>
+                  </defs>
+                </svg>
+                <div class="time" id="pomTime">25:00</div>
+              </div>
+
+              <div class="pom-controls">
+                <button class="icon-btn" id="pomStart">Start</button>
+                <button class="icon-btn" id="pomPause">Pause</button>
+                <button class="icon-btn" id="pomReset">Reset</button>
+              </div>
+
+              <div style="display: flex; gap: 8px; margin-top: 8px">
+                <div class="small">
+                  Cycle: <strong id="pomCycle">0</strong>/4
+                </div>
+                <div style="flex: 1"></div>
+                <div class="small">
+                  Mode: <strong id="pomMode">Work</strong>
+                </div>
+              </div>
+            </div>
+
+            <!-- Goals -->
+            <div class="card goals">
+              <div
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                "
+              >
+                <div style="font-weight: 800; color: var(--neon2)">
+                  Daily Goals
+                </div>
+                <button class="icon-btn" id="addGoalBtn">+ Add</button>
+              </div>
+              <div id="goalsList" style="margin-top: 8px"></div>
+            </div>
+
+            <!-- Notes -->
+            <div class="card notes-area">
+              <div
+                style="
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                "
+              >
+                <div style="font-weight: 800; color: var(--neon2)">Notes</div>
+                <div style="display: flex; gap: 8px">
+                  <button class="icon-btn" id="mdToggle">Preview</button>
+                  <button class="icon-btn" id="saveNotesBtn">Save</button>
+                </div>
+              </div>
+              <textarea
+                id="notesText"
+                class="notes-text"
+                placeholder="Write notes in Markdown..."
+              ></textarea>
+              <div
+                id="notesPreview"
+                class="notes-preview"
+                aria-live="polite"
+                style="display: none"
+              ></div>
+            </div>
+          </aside>
+        </div>
+      </main>
+
+      <!-- RIGHT: quick stats & settings -->
+      <div class="card right">
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          "
+        >
+          <div style="font-weight: 800; color: var(--neon2)">Today</div>
+          <div class="small" id="dateNow"></div>
+        </div>
+
+        <div style="margin-top: 8px">
+          <div class="small">Tasks completed</div>
+          <div
+            style="font-size: 22px; font-weight: 800; margin-top: 6px"
+            id="dailyCompleted"
+          >
+            0
+          </div>
+        </div>
+
+        <div style="margin-top: 12px">
+          <div class="small">Streak</div>
+          <div
+            style="font-size: 22px; font-weight: 800; margin-top: 6px"
+            id="streak"
+          >
+            0 days
+          </div>
+        </div>
+
+        <div style="margin-top: 12px">
+          <div class="small">Quick actions</div>
+          <div
+            style="
+              display: flex;
+              flex-direction: column;
+              gap: 8px;
+              margin-top: 8px;
+            "
+          >
+            <button class="icon-btn" id="clearCompleted">
+              Clear Completed
+            </button>
+            <button class="icon-btn" id="exportBtn">Export JSON</button>
+            <button class="icon-btn" id="importBtn">Import JSON</button>
+            <input
+              type="file"
+              id="importFile"
+              style="display: none"
+              accept=".json"
+            />
+          </div>
+        </div>
+
+        <div style="flex: 1"></div>
+        <div class="small" style="text-align: center">
+          Get busy • All data saved locally
+        </div>
+      </div>
     </div>
-
-    <div id="result" class="card"></div>
-  </div>
-
-  <!-- Link JS -->
-  <script src="script.js"></script>
-
-</body>
+    <script src="script.js"></script>
+  </body>
 </html>
